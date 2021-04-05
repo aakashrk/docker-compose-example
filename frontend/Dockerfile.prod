@@ -1,12 +1,14 @@
+# Step 1 : Build Stage
 FROM node:14.16.0-alpine3.13 AS build-stage
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . ./
+ENV REACT_APP_API_URL=http://104.131.24.150:3001/api
 RUN npm run build
 
+# Step 2 : Production - Here we are running nginx as root user. Dont do it in real production environment
 FROM nginx:1.12.-alpine
-# <---------------- Here we are running nginx as root user. Dont do it in production --------------> 
 COPY --from=build-stage /app/build /usr/share/nginx/html/
 EXPOSE 80
 ENTRYPOINT [ "nginx" "-g", "daemon off;" ] 
